@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Priority Inbox</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      padding: 30px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    .card {
+      background: white;
+      border-left: 5px solid #ccc;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+
+    .card.placement { border-left-color: #1976d2; }
+    .card.result     { border-left-color: #f57c00; }
+    .card.event      { border-left-color: #388e3c; }
+
+    .tag {
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      color: #555;
+    }
+
+    .msg { font-size: 14px; }
+
+    .score {
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Top 10 Priority Notifications</h2>
+  <div id="list"></div>
+
+  <script>
+    const notifications = [
+      { id: 1,  type: "placement", message: "TCS drive on Monday",                    timestamp: Date.now() - 2 * 60 * 1000 },
+      { id: 2,  type: "result",    message: "Sem 5 results are out",                   timestamp: Date.now() - 10 * 60 * 1000 },
+      { id: 3,  type: "event",     message: "Cultural fest this Friday",               timestamp: Date.now() - 30 * 60 * 1000 },
+      { id: 4,  type: "placement", message: "Infosys registration open",               timestamp: Date.now() - 5 * 60 * 1000 },
+      { id: 5,  type: "result",    message: "Internal marks updated",                  timestamp: Date.now() - 60 * 60 * 1000 },
+      { id: 6,  type: "event",     message: "Sports day tomorrow",                     timestamp: Date.now() - 45 * 60 * 1000 },
+      { id: 7,  type: "placement", message: "Wipro walkin next week",                  timestamp: Date.now() - 1 * 60 * 1000 },
+      { id: 8,  type: "result",    message: "Revaluation results published",           timestamp: Date.now() - 90 * 60 * 1000 },
+      { id: 9,  type: "event",     message: "AI workshop today in seminar hall",       timestamp: Date.now() - 20 * 60 * 1000 },
+      { id: 10, type: "placement", message: "Accenture PPT tomorrow at 2pm",           timestamp: Date.now() - 3 * 60 * 1000 },
+      { id: 11, type: "result",    message: "Project marks uploaded",                  timestamp: Date.now() - 75 * 60 * 1000 },
+      { id: 12, type: "event",     message: "Alumni meet next month",                  timestamp: Date.now() - 120 * 60 * 1000 },
+    ];
+
+    const weight = { placement: 3, result: 2, event: 1 };
+
+    function getTop10(list) {
+      const times = list.map(n => n.timestamp);
+      const min = Math.min(...times);
+      const max = Math.max(...times);
+
+      return list
+        .map(n => {
+          const recency = (n.timestamp - min) / (max - min);
+          const score = weight[n.type] * 0.7 + recency * 0.3;
+          return { ...n, score };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+    }
+
+    const top10 = getTop10(notifications);
+    const container = document.getElementById("list");
+
+    top10.forEach((n, i) => {
+      container.innerHTML += `
+        <div class="card ${n.type}">
+          <div class="tag">${i + 1}. ${n.type}</div>
+          <div class="msg">${n.message}</div>
+          <div class="score">score: ${n.score.toFixed(3)}</div>
+        </div>
+      `;
+    });
+  </script>
+
+</body>
+</html>
